@@ -74,7 +74,7 @@ window.addEventListener('load', async () => {
       if (response.ok) { // if HTTP-status is 200-299
         json = await response.json();
       }else {
-        console.log('Â¯/_(ãƒ„)_/Â¯ : ' + response.status);
+        console.log('etherscan : ' + response.status);
         break
       }
       txs2 = json['result']
@@ -111,7 +111,33 @@ window.addEventListener('load', async () => {
       var gasPrice = txsOut.map(value => parseInt(value.gasPrice));
       var gasPriceMin = Math.min(...gasPrice);
       var gasPriceMax = Math.max(...gasPrice);
-      var gasFee = multiply(gasPrice, gasUsed)
+
+      var gasFee = multiply(gasPrice, gasUsed);
+      var timestamp = txsOut.map(value => parseInt(value.timeStamp));
+      console.log("gas fees", gasFee)
+      var fromTimestamp = timestamp[0]
+      var toTimestamp = timestamp[timestamp.length-1]
+      // https://www.bitmex.com/api/udf/history?symbol=ETHUSD&resolution=1h&from=1610475138&to=1610475138
+      
+      u = `https://www.bitmex.com/api/udf/history?symbol=ETHUSD&resolution=1D&from=${fromTimestamp}&to=${toTimestamp}`
+      // For development purpose only
+      response = await fetch(u, {
+        method: 'GET',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+        mode: 'no-cors'
+      })
+      // For production env
+      // response = await fetch(u)
+      console.log('response', response)
+      if (response.ok) { // if HTTP-status is 200-299
+        json = await response.json();
+      }else {
+        console.log('bitmex usd prices ' + response.status);
+      }
+      var ethusdprice = json['result']
+      console.log('eth usd price', ethusdprice)
       var gasFeeTotal = gasFee.reduce((partial_sum, a) => partial_sum + a,0); 
       var gasPriceTotal = gasPrice.reduce((partial_sum, a) => partial_sum + a,0);
       var gasUsedFail = txsOutFail.map(value => parseInt(value.gasUsed));
