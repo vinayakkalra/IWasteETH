@@ -74,7 +74,7 @@ window.addEventListener('load', async () => {
       if (response.ok) { // if HTTP-status is 200-299
         json = await response.json();
       }else {
-        console.log('Â¯\_(ãƒ„)_/Â¯ : ' + response.status);
+        console.log('Â¯/_(ãƒ„)_/Â¯ : ' + response.status);
         break
       }
       txs2 = json['result']
@@ -167,6 +167,14 @@ window.addEventListener('load', async () => {
   }else{
     $('.foo').addClass('footer');
   }
+  if(window.innerWidth >= 960){
+    $('.section').removeClass('col-12');
+    $('.section').addClass('col-4');
+  }else{
+    $('.section').removeClass('col-4');
+    $('.mbs').removeClass('d-flex');
+    $('.section').addClass('col-12');
+  }
 });
 
 function App() {
@@ -182,25 +190,11 @@ function App() {
           <p>You've spent <span id="gasFeeTotal">🤔</span> on gas. Right now, that's <span id="ethusd">🤔</span>.</p>
           <p>You used <span id="gasUsedTotal">🤔</span> gas to send <span id="nOut">🤔</span> transactions, with an average price of <span id="gasPricePerTx">🤔</span> gwei.</p>
           <p><span id="nOutFail">🤔</span> of them failed, costing you <span id="gasFeeTotalFail">🤔</span>.</p>
-          <div className="d-flex justify-content-center pt-4 overflow-hidden">
-            <div>
-              {/* <Chart
-                chartType="PieChart"
-                loader={<div>Loading Chart</div>}
-                data={[
-                  ['data', 'in(USD'],
-                  ['US$15', 15],
-                  ['US$10', 10],
-                ]}
-                options={{
-                  'width':800,
-                  'height':500,
-                  legend: 'none',
-                  pieSliceText: 'label',
-                  pieStartAngle: 100,
-                }}
-                rootProps={{ 'data-testid': '4' }}
-              /> */}
+          <div className="mbs d-flex justify-content-center pt-4 overflow-hidden">
+            <div className="col-4 section">
+              <h4>Amount of ETH investment lost in gas payments</h4>
+            </div>
+            <div className="col-4 section">
               <PieChart
                 data={[
                   { title: 'One', value: 945, color: '#346099' },
@@ -209,12 +203,15 @@ function App() {
                 label={({ dataEntry }) => 'US$ '+dataEntry.value}
                 labelStyle={{
                   fontSize: '7px',
-                  fontFamily: 'sans-serif',
+                  fontFamily: 'Roboto',
                   fill: '#fff',
                 }}
                 startAngle={-90}
                 lengthAngle={360}
-              />;
+              />
+            </div>
+            <div className="col-4 section">
+              <h4>Amount you should have paid if you paid in stablecoins</h4>
             </div>
           </div>
         </div>

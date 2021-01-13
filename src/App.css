@@ -56,6 +56,15 @@
 .App-link {
   color: #61dafb;
 }
+.section{
+  text-align:center;
+  display:table;
+  height:526px;
+}
+h4{
+  vertical-align:middle;
+  display:table-cell;
+}
 @media only screen and (max-device-width: 480px){
 
   .App-header .screen1 {
@@ -71,5 +80,8 @@
   .App-header p {
     padding: 0 10px;
     margin: 0.65em 0;
+  }
+  .section{
+    height:140px;
   }
 }
