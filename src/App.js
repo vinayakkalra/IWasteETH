@@ -119,17 +119,17 @@ window.addEventListener('load', async () => {
       var toTimestamp = timestamp[timestamp.length-1]
       // https://www.bitmex.com/api/udf/history?symbol=ETHUSD&resolution=1h&from=1610475138&to=1610475138
       
-      u = `https://www.bitmex.com/api/udf/history?symbol=ETHUSD&resolution=1D&from=${fromTimestamp}&to=${toTimestamp}`
+      var time = `https://www.bitmex.com/api/udf/history?symbol=ETHUSD&resolution=1D&from=${fromTimestamp}&to=${toTimestamp}`
       // For development purpose only
-      response = await fetch(u, {
+      response = await fetch(time, {
         method: 'GET',
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Origin': 'http://localhost:3000',
         },
         mode: 'no-cors'
       })
       // For production env
-      // response = await fetch(u)
+      // response = await fetch(time)
       console.log('response', response)
       if (response.ok) { // if HTTP-status is 200-299
         json = await response.json();
