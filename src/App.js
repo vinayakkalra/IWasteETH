@@ -2,7 +2,8 @@ import React from 'react';
 // import logo from './logo.svg';
 import './App.css';
 import $ from "jquery";
-import { Chart } from "react-google-charts";
+// import { Chart } from "react-google-charts";
+import { PieChart } from 'react-minimal-pie-chart';
 
 // MetaMask data
 // const getTxs = async (address) => {
@@ -15,9 +16,9 @@ window.addEventListener('load', async () => {
     
     const provider = window["ethereum"];
     await provider.enable();
-    console.log('address', window.ethereum.selectedAddress);
+    // console.log('address', window.ethereum.selectedAddress);
     address = window.ethereum.selectedAddress;
-    console.log(address);
+    // console.log(address);
     $(".screen1").css("display","block");
     $(".screen2").css("display","none");
     data(address)
@@ -73,7 +74,7 @@ window.addEventListener('load', async () => {
       if (response.ok) { // if HTTP-status is 200-299
         json = await response.json();
       }else {
-        // console.log('Â¯\_(ãƒ„)_/Â¯ : ' + response.status);
+        console.log('Â¯\_(ãƒ„)_/Â¯ : ' + response.status);
         break
       }
       txs2 = json['result']
@@ -161,6 +162,11 @@ window.addEventListener('load', async () => {
     $(".screen1").css("display","block");
     $(".screen2").css("display","none");
   }
+  if($('.screen2').css('display') === 'none'){
+    $('.foo').removeClass('footer');
+  }else{
+    $('.foo').addClass('footer');
+  }
 });
 
 function App() {
@@ -176,9 +182,9 @@ function App() {
           <p>You've spent <span id="gasFeeTotal">🤔</span> on gas. Right now, that's <span id="ethusd">🤔</span>.</p>
           <p>You used <span id="gasUsedTotal">🤔</span> gas to send <span id="nOut">🤔</span> transactions, with an average price of <span id="gasPricePerTx">🤔</span> gwei.</p>
           <p><span id="nOutFail">🤔</span> of them failed, costing you <span id="gasFeeTotalFail">🤔</span>.</p>
-          <div className="d-flex justify-content-center pt-4">
+          <div className="d-flex justify-content-center pt-4 overflow-hidden">
             <div>
-              <Chart
+              {/* <Chart
                 chartType="PieChart"
                 loader={<div>Loading Chart</div>}
                 data={[
@@ -194,11 +200,28 @@ function App() {
                   pieStartAngle: 100,
                 }}
                 rootProps={{ 'data-testid': '4' }}
-              />
+              /> */}
+              <PieChart
+                data={[
+                  { title: 'One', value: 945, color: '#346099' },
+                  { title: 'Two', value: 1055, color: '#C13C37' },
+                ]}
+                label={({ dataEntry }) => 'US$ '+dataEntry.value}
+                labelStyle={{
+                  fontSize: '7px',
+                  fontFamily: 'sans-serif',
+                  fill: '#fff',
+                }}
+                startAngle={-90}
+                lengthAngle={360}
+              />;
             </div>
           </div>
         </div>
       </header>
+      <footer className='foo'>
+        <p style={{color:'gray',zIndex:'1',fontSize:'16px'}}>Developed By <a rel="noreferrer" href="https://www.quadbtech.com" target="_blank" style={{color:"cornflowerblue !important"}}>QuadBTech</a></p>
+      </footer>
     </div>
   );
 }

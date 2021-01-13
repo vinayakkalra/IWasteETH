@@ -27,6 +27,13 @@
   margin-right: -50%;
   transform: translate(-50%, -50%);
 }
+.footer {
+  position: absolute;
+  top: 98%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+}
 .App-header .screen1 {
   display:none;
   padding: 1em;
