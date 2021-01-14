@@ -121,20 +121,14 @@ window.addEventListener('load', async () => {
       
       var time = `https://www.bitmex.com/api/udf/history?symbol=ETHUSD&resolution=1D&from=${fromTimestamp}&to=${toTimestamp}`
       // For development purpose only
-      response = await fetch(time, {
-        method: 'GET',
-        headers: {
-          'Access-Control-Allow-Origin': 'http://localhost:3000',
-        },
-        mode: 'no-cors'
-      })
+      var response1 = await fetch(time)
       // For production env
       // response = await fetch(time)
-      console.log('response', response)
-      if (response.ok) { // if HTTP-status is 200-299
-        json = await response.json();
+      console.log('response', response1)
+      if (response1.ok) { // if HTTP-status is 200-299
+        json = await response1.json();
       }else {
-        console.log('bitmex usd prices ' + response.status);
+        console.log('bitmex usd prices ' + response1.status);
       }
       var ethusdprice = json['result']
       console.log('eth usd price', ethusdprice)
