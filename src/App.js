@@ -10,6 +10,8 @@ import { PieChart } from 'react-minimal-pie-chart';
 //   address = window.ethereum.selectedAddress;
 // };
 var address = "";
+var totalPricePerTransaction; 
+var currentethusd
 window.addEventListener('load', async () => {          
   if (typeof window.ethereum !== "undefined" && window.ethereum.isMetaMask) {
     // Ethereum user detected. You can now use the provider.
@@ -115,11 +117,15 @@ window.addEventListener('load', async () => {
       var gasFee = multiply(gasPrice, gasUsed);
       var timestamp = txsOut.map(value => parseInt(value.timeStamp));
       console.log("gas fees", gasFee)
+      console.log("timestamp", timestamp)
       var fromTimestamp = timestamp[0]
       var toTimestamp = timestamp[timestamp.length-1]
+
+      console.log("From timestamp", fromTimestamp)
+      console.log("To timestamp", toTimestamp)
       // https://www.bitmex.com/api/udf/history?symbol=ETHUSD&resolution=1h&from=1610475138&to=1610475138
       
-      var time = `https://www.bitmex.com/api/udf/history?symbol=ETHUSD&resolution=1D&from=${fromTimestamp}&to=${toTimestamp}`
+      var time = `https://api.coincap.io/v2/assets/ethereum/history?interval=d1&start=${fromTimestamp * 1000}&end=${toTimestamp * 1000}`
       // For development purpose only
       var response1 = await fetch(time)
       // For production env
@@ -127,11 +133,39 @@ window.addEventListener('load', async () => {
       console.log('response', response1)
       if (response1.ok) { // if HTTP-status is 200-299
         json = await response1.json();
+        console.log('coincap result ', json);
       }else {
-        console.log('bitmex usd prices ' + response1.status);
+        console.log('coincap error ', response1.status);
       }
-      var ethusdprice = json['result']
+      var ethusdprice = json['data']
       console.log('eth usd price', ethusdprice)
+      var pricePerTransaction = []
+      for(var x=0; x<timestamp.length; x++){
+        for(var y=1; y<ethusdprice.length-1; y++){
+          
+          if((new Date(timestamp[x])).getDate() === (new Date(ethusdprice[y].time)).getDate()){
+            pricePerTransaction[x] = parseFloat(ethusdprice[y].priceUsd) * parseFloat(gasFee[x]/1e18)
+            // console.log('1', parseFloat(ethusdprice[y].priceUsd) * parseFloat(gasFee[x]/1e18))
+            break
+          } else if((new Date(timestamp[x])).getDate() === (new Date(ethusdprice[y+1].time)).getDate()){
+            // console.log(Date(timestamp[x]).getDate(), Date(ethusdprice[y+1].time).getDate())
+
+            pricePerTransaction[x] = parseFloat(ethusdprice[y+1].priceUsd) * parseFloat(gasFee[x]/1e18)
+            // console.log('2', parseFloat(ethusdprice[y+1].priceUsd) * parseFloat(gasFee[x]/1e18))
+            break
+          } else if((new Date(timestamp[x])).getDate() === (new Date(ethusdprice[y-1].time)).getDate()){
+            // console.log(Date(timestamp[x]).getDate(), Date(ethusdprice[y-1].time).getDate())
+
+            pricePerTransaction[x] = parseFloat(ethusdprice[y-1].priceUsd) * parseFloat(gasFee[x]/1e18)
+
+            // console.log('3', parseFloat(ethusdprice[y-1].priceUsd) * parseFloat(gasFee[x]/1e18))
+            break
+          }
+          
+        }
+      }
+      console.log('price per transaction', pricePerTransaction)
+      totalPricePerTransaction = pricePerTransaction.reduce((partial_sum, a) => partial_sum + a,0); 
       var gasFeeTotal = gasFee.reduce((partial_sum, a) => partial_sum + a,0); 
       var gasPriceTotal = gasPrice.reduce((partial_sum, a) => partial_sum + a,0);
       var gasUsedFail = txsOutFail.map(value => parseInt(value.gasUsed));
@@ -140,6 +174,7 @@ window.addEventListener('load', async () => {
       var gasFeeTotalFail = gasFeeFail.reduce((partial_sum, a) => partial_sum + a,0); 
       $('#gasUsedTotal').text(comma(formatter(gasUsedTotal)));
       $('#gasPricePerTx').text(comma((gasPriceTotal/nOut/1e9).toFixed(1)));
+      
       $('#gasPricePerTx').hover(function() {
       $(this).css('cursor', 'help').attr('title', 'Min: ' + (gasPriceMin/1e9).toFixed(3) + '; Max: ' + (gasPriceMax/1e9).toFixed(3));
         // Tipped.create('#gasPricePerTx', 'Min: ' + (gasPriceMin/1e9).toFixed(1) + '; Max: ' + (gasPriceMax/1e9).toFixed(1), { offset: { y: 20 } });
@@ -162,7 +197,10 @@ window.addEventListener('load', async () => {
         $('#gasFeeTotalFail').html('nothing');
       }
       if (ethusd !== null) {
+        window.currentethusd = ethusd*gasFeeTotal/1e18
         $('#ethusd').text('$' + comma(formatter((ethusd*gasFeeTotal/1e18).toFixed(2))));
+        $('#totalStableFees').text('$' + comma(formatter((totalPricePerTransaction).toFixed(2))));
+        window.totalPricePerTransaction = totalPricePerTransaction
         $('#oofCost').append(' ($' + comma(formatter((ethusd*gasFeeFail[i]/1e18).toFixed(2))) + ')');
       } 
     }else{
@@ -208,6 +246,7 @@ function App() {
         {/* Screen 1 */}
         <div className="screen1">
           <p>You've spent <span id="gasFeeTotal">🤔</span> on gas. Right now, that's <span id="ethusd">🤔</span>.</p>
+          <p>If you paid in stablecoins, you would have paid: <span id="totalStableFees">🤔</span> on gas.</p>
           <p>You used <span id="gasUsedTotal">🤔</span> gas to send <span id="nOut">🤔</span> transactions, with an average price of <span id="gasPricePerTx">🤔</span> gwei.</p>
           <p><span id="nOutFail">🤔</span> of them failed, costing you <span id="gasFeeTotalFail">🤔</span>.</p>
           <div className="mbs d-flex justify-content-center pt-4 overflow-hidden">
@@ -217,8 +256,8 @@ function App() {
             <div className="col-4 section">
               <PieChart
                 data={[
-                  { title: 'One', value: 945, color: '#346099' },
-                  { title: 'Two', value: 1055, color: '#C13C37' },
+                  { title: 'One', value: parseInt(window.totalPricePerTransaction), color: '#346099' },
+                  { title: 'Two', value: parseInt(currentethusd) - parseInt(window.totalPricePerTransaction), color: '#C13C37' },
                 ]}
                 label={({ dataEntry }) => 'US$ '+dataEntry.value}
                 labelStyle={{
