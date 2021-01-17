@@ -274,13 +274,14 @@ function App() {
               <h4>Amount you should have paid if you paid in stablecoins</h4>
             </div>
           </div>
-          <div>
+          <div className="share-buttons">
+            <h2>Share Your Findings Now</h2>
             <TelegramShareButton
                 url={'abc'}
                 title={'telegram'}
                 className="Demo__some-network__share-button pr-2">
                 <TelegramIcon
-                  size={50}
+                  size={45}
                   round />
               </TelegramShareButton>
             <TwitterShareButton
@@ -288,7 +289,7 @@ function App() {
               title={'twitter'}
               className="Demo__some-network__share-button">
               <TwitterIcon
-                size={50}
+                size={45}
                 round />
             </TwitterShareButton>
           </div>
