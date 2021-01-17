@@ -3,53 +3,105 @@ import React from 'react';
 import './App.css';
 import $ from "jquery";
 // import { Chart } from "react-google-charts";
-import { PieChart } from 'react-minimal-pie-chart';
+// import { PieChart } from 'react-minimal-pie-chart';
 import {TelegramShareButton,TwitterShareButton} from "react-share";
 import {TelegramIcon,TwitterIcon} from "react-share";
+import PieChartComponent from "./PieChart"
 // MetaMask data
 // const getTxs = async (address) => {
 //   address = window.ethereum.selectedAddress;
 // };
-var address = "";
-var totalPricePerTransaction; 
-var currentethusd
-window.addEventListener('load', async () => {          
-  if (typeof window.ethereum !== "undefined" && window.ethereum.isMetaMask) {
-    // Ethereum user detected. You can now use the provider.
-    
-    const provider = window["ethereum"];
-    await provider.enable();
-    // console.log('address', window.ethereum.selectedAddress);
-    address = window.ethereum.selectedAddress;
-    // console.log(address);
-    $(".screen1").css("display","block");
-    $(".screen2").css("display","none");
-    data(address)
-  } else {
-    $(".screen2").css("display","block");
+
+class App extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      currentethusd : 0,
+      totalPricePerTransaction : 0,
+      isStateLoaded : false,
+      isFooterLoaded: false,
+      isHeaderLoaded: true,
+      gasFeeTotal: '00'
+    };
   }
-  
-  async function data(address){
-    // comma
-    console.log(address);
-    function comma(x) {
-      var parts = x.toString().split(".");
-      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-      return parts.join(".");
-    }
-    //formatter 
-    function formatter(num) {
-      return num > 999999 ? (num/1e6).toFixed(3) + ' million' : num;
-    }
-    // multiply
-    function multiply(x, y) {
-      var prod = [];
-      var i;
-      for (i=0; i < x.length; i++) {
-        prod[i] = x[i] * y[i];
+
+  componentDidMount(){
+    
+    window.addEventListener('load', async () => {          
+      var address = "";
+      // var currentethusd
+    
+      if (typeof window.ethereum !== "undefined" && window.ethereum.isMetaMask) {
+        // Ethereum user detected. You can now use the provider.
+        
+        const provider = window["ethereum"];
+        await provider.enable();
+        // console.log('address', window.ethereum.selectedAddress);
+        address = window.ethereum.selectedAddress;
+        // console.log(address);
+        $(".screen1").css("display","block");
+        $(".screen2").css("display","none");
+        this.setState({isHeaderLoaded: false})
+        this.data(address)
+      } else {
+        $(".screen2").css("display","block");
       }
-      return prod;
+      // get data by address
+      let search = window.location.search;
+      let params = new URLSearchParams(search);
+      address = params.get('address', null);
+      // console.log(address);
+      if (address==null) {
+    
+      }else{
+        this.data(address)
+        $(".screen1").css("display","block");
+        $(".screen2").css("display","none");
+        this.setState({isHeaderLoaded: false})
+      }
+      if($('.screen2').css('display') === 'none'){
+        $('.foo').removeClass('footer');
+      }else{
+        $('.foo').addClass('footer');
+      }
+      if(window.innerWidth >= 960){
+        $('.section').removeClass('col-12');
+        $('.section').addClass('col-4');
+      }else{
+        $('.section').removeClass('col-4');
+        $('.mbs').removeClass('d-flex');
+        $('.section').addClass('col-12');
+      }
+      this.setState({isFooterLoaded: true})
+    });
+  }
+
+  comma(x) {
+    var parts = x.toString().split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return parts.join(".");
+  }
+  //this.formatter 
+  formatter(num) {
+    return num > 999999 ? (num/1e6).toFixed(3) + ' million' : num;
+  }
+  // this.multiply
+  multiply(x, y) {
+    var prod = [];
+    var i;
+    for (i=0; i < x.length; i++) {
+      prod[i] = x[i] * y[i];
     }
+    return prod;
+  }
+
+  async data(address){
+    var self = this;
+    var totalPricePerTransaction 
+
+    // this.comma
+    console.log(address);
     // 
     var ethusd = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd').then(response => {return response.json()}).catch(err => {
       console.log('(â•¯Â°â–¡Â°)â•¯ï¸µ â”»â”â”»', err);
@@ -99,13 +151,13 @@ window.addEventListener('load', async () => {
   
     var nOut = txsOut.length;
     
-    $('#nOut').text(comma(nOut));
+    $('#nOut').text(this.comma(nOut));
     var txsOutFail = $.grep(txsOut, function(v) {
       return v.isError === '1';
     });
 
     var nOutFail = txsOutFail.length;
-    $('#nOutFail').text(comma(nOutFail));
+    $('#nOutFail').text(this.comma(nOutFail));
     console.log('Failed outgoing txs:', txsOutFail);
   
     if (nOut > 0) {
@@ -115,7 +167,7 @@ window.addEventListener('load', async () => {
       var gasPriceMin = Math.min(...gasPrice);
       var gasPriceMax = Math.max(...gasPrice);
 
-      var gasFee = multiply(gasPrice, gasUsed);
+      var gasFee = this.multiply(gasPrice, gasUsed);
       var timestamp = txsOut.map(value => parseInt(value.timeStamp));
       console.log("gas fees", gasFee)
       console.log("timestamp", timestamp)
@@ -171,10 +223,10 @@ window.addEventListener('load', async () => {
       var gasPriceTotal = gasPrice.reduce((partial_sum, a) => partial_sum + a,0);
       var gasUsedFail = txsOutFail.map(value => parseInt(value.gasUsed));
       var gasPriceFail = txsOutFail.map(value => parseInt(value.gasPrice));
-      var gasFeeFail = multiply(gasPriceFail, gasUsedFail)
+      var gasFeeFail = this.multiply(gasPriceFail, gasUsedFail)
       var gasFeeTotalFail = gasFeeFail.reduce((partial_sum, a) => partial_sum + a,0); 
-      $('#gasUsedTotal').text(comma(formatter(gasUsedTotal)));
-      $('#gasPricePerTx').text(comma((gasPriceTotal/nOut/1e9).toFixed(1)));
+      $('#gasUsedTotal').text(this.comma(this.formatter(gasUsedTotal)));
+      $('#gasPricePerTx').text(this.comma((gasPriceTotal/nOut/1e9).toFixed(1)));
       
       $('#gasPricePerTx').hover(function() {
       $(this).css('cursor', 'help').attr('title', 'Min: ' + (gasPriceMin/1e9).toFixed(3) + '; Max: ' + (gasPriceMax/1e9).toFixed(3));
@@ -182,7 +234,9 @@ window.addEventListener('load', async () => {
       }, function() {
       $(this).css('cursor', 'auto');
       });
-      $('#gasFeeTotal').text('Ξ' + comma((gasFeeTotal/1e18).toFixed(3)));
+      $('#gasFeeTotal').text('Ξ' + this.comma((gasFeeTotal/1e18).toFixed(3)));
+
+      this.setState({gasFeeTotal : this.comma((gasFeeTotal/1e18).toFixed(3))})
     
       if (nOutFail > 0) {
         $('#gasFeeTotalFail').html('Ξ' + (gasFeeTotalFail/1e18).toFixed(3));
@@ -198,108 +252,83 @@ window.addEventListener('load', async () => {
         $('#gasFeeTotalFail').html('nothing');
       }
       if (ethusd !== null) {
-        window.currentethusd = ethusd*gasFeeTotal/1e18
-        $('#ethusd').text('$' + comma(formatter((ethusd*gasFeeTotal/1e18).toFixed(2))));
-        $('#totalStableFees').text('$' + comma(formatter((totalPricePerTransaction).toFixed(2))));
-        window.totalPricePerTransaction = totalPricePerTransaction
-        $('#oofCost').append(' ($' + comma(formatter((ethusd*gasFeeFail[i]/1e18).toFixed(2))) + ')');
+        // window.currentethusd = ethusd*gasFeeTotal/1e18
+        $('#ethusd').text('$' + this.comma(this.formatter((ethusd*gasFeeTotal/1e18).toFixed(2))));
+        $('#totalStableFees').text('$' + this.comma(this.formatter((totalPricePerTransaction).toFixed(2))));
+        // window.totalPricePerTransaction = totalPricePerTransaction
+        $('#oofCost').append(' ($' + this.comma(this.formatter((ethusd*gasFeeFail[i]/1e18).toFixed(2))) + ')');
+
+        self.setState({totalPricePerTransaction: totalPricePerTransaction, currentethusd: ethusd*gasFeeTotal/1e18, isStateLoaded: true})
       } 
     }else{
       $('#gasUsedTotal').text(0);
       $('#gasFeeTotal').text('Ξ' + 0);
     }
   }
-  // get data by address
-  let search = window.location.search;
-  let params = new URLSearchParams(search);
-  address = params.get('address', null);
-  // console.log(address);
-  if (address==null) {
 
-  }else{
-    data(address)
-    $(".screen1").css("display","block");
-    $(".screen2").css("display","none");
-  }
-  if($('.screen2').css('display') === 'none'){
-    $('.foo').removeClass('footer');
-  }else{
-    $('.foo').addClass('footer');
-  }
-  if(window.innerWidth >= 960){
-    $('.section').removeClass('col-12');
-    $('.section').addClass('col-4');
-  }else{
-    $('.section').removeClass('col-4');
-    $('.mbs').removeClass('d-flex');
-    $('.section').addClass('col-12');
-  }
-});
-
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header pt-4 pb-4">
-        {/* Screen 2 */}
-        <div className="screen2">
-          <p>Sign into <strong><a href="https://metamask.io">MetaMask</a></strong> or pass an Address via the url (like <strong><a href="http://localhost:3000/?address=0xcdd6a2b9dd3e386c8cd4a7ada5cab2f1c561182d">this</a></strong>).</p>
-        </div>
-        {/* Screen 1 */}
-        <div className="screen1">
-          <p>You've spent <span id="gasFeeTotal">🤔</span> on gas. Right now, that's <span id="ethusd">🤔</span>.</p>
-          <p>If you paid in stablecoins, you would have paid: <span id="totalStableFees">🤔</span> on gas.</p>
-          <p>You used <span id="gasUsedTotal">🤔</span> gas to send <span id="nOut">🤔</span> transactions, with an average price of <span id="gasPricePerTx">🤔</span> gwei.</p>
-          <p><span id="nOutFail">🤔</span> of them failed, costing you <span id="gasFeeTotalFail">🤔</span>.</p>
-          <div className="mbs d-flex justify-content-center pt-4 overflow-hidden">
-            <div className="col-4 section">
-              <h4>Amount of ETH investment lost in gas payments</h4>
-            </div>
-            <div className="col-4 section">
-              <PieChart
-                data={[
-                  { title: 'One', value:945, color: '#346099' },
-                  { title: 'Two', value:1055, color: '#C13C37' },
-                ]}
-                label={({ dataEntry }) => 'US$ '+dataEntry.value}
-                labelStyle={{
-                  fontSize: '7px',
-                  fontFamily: 'Roboto',
-                  fill: '#fff',
-                }}
-                startAngle={-90}
-                lengthAngle={360}
-              />
-            </div>
-            <div className="col-4 section">
-              <h4>Amount you should have paid if you paid in stablecoins</h4>
-            </div>
+  render(){
+    console.log("window", window.totalPricePerTransaction)
+    return (
+      <div className="App">
+        <header className="App-header pt-4 pb-4" style={this.state.isHeaderLoaded ? {height: '90vh'} : {}}>
+          {/* Screen 2 */}
+          <div className="screen2">
+            <p>Sign into <strong><a href="https://metamask.io" target="_blank" rel="noreferrer">MetaMask</a></strong> or pass an Address via the url (like <strong><a href="/?address=0xcdd6a2b9dd3e386c8cd4a7ada5cab2f1c561182d">this</a></strong>).</p>
           </div>
-          <div className="share-buttons">
-            <h2>Share Your Findings Now</h2>
-            <TelegramShareButton
-                url={'abc'}
-                title={'telegram'}
-                className="Demo__some-network__share-button pr-2">
-                <TelegramIcon
+          {/* Screen 1 */}
+          <div className="screen1">
+            <p>You've spent <span id="gasFeeTotal">🤔</span> on gas. Right now, that's <span id="ethusd">🤔</span>.</p>
+            <p>If you paid in stablecoins, you would have paid: <span id="totalStableFees">🤔</span> on gas.</p>
+            <p>You used <span id="gasUsedTotal">🤔</span> gas to send <span id="nOut">🤔</span> transactions, with an average price of <span id="gasPricePerTx">🤔</span> gwei.</p>
+            <p><span id="nOutFail">🤔</span> of them failed, costing you <span id="gasFeeTotalFail">🤔</span>.</p>
+            {this.state.isStateLoaded &&  
+              <div className="mbs d-flex justify-content-center align-items-center pt-4 overflow-hidden">
+                <div className="col-4">
+                  <h4>Amount of ETH investment lost in gas payments</h4>
+                </div>
+                <div className="col-4">
+                  
+                  <PieChartComponent redValue={this.state.totalPricePerTransaction} blueValue={this.state.currentethusd - this.state.totalPricePerTransaction}/>
+                
+                  
+                </div>
+                <div className="col-4">
+                  <h4>Amount you should have paid if you paid in stablecoins</h4>
+                </div>
+              </div>
+            }
+            
+            <div className="share-buttons pt-5">
+              <h2>Share Your Findings Now</h2>
+              <TelegramShareButton
+                  url={window.location.href}
+                  title={'I have spent ' + this.state.gasFeeTotal +' ETH in gas currently worth $'+ this.comma(this.formatter(this.state.currentethusd.toFixed(0))) +'. If I paid gas in stablecoin, I would have saved $'+ this.comma(this.formatter((this.state.currentethusd - this.state.totalPricePerTransaction).toFixed(0))) +'.'}
+                  className="pr-2">
+                  <TelegramIcon
+                    size={45}
+                    round />
+              </TelegramShareButton>
+              <TwitterShareButton
+                url={window.location.href}
+                title={'I have spent ' + this.state.gasFeeTotal +' ETH in gas currently worth $'+ this.comma(this.formatter(this.state.currentethusd.toFixed(0))) +'. If I paid gas in stablecoin, I would have saved $'+ this.comma(this.formatter((this.state.currentethusd - this.state.totalPricePerTransaction).toFixed(0))) +'.'}
+                className="">
+                <TwitterIcon
                   size={45}
                   round />
-              </TelegramShareButton>
-            <TwitterShareButton
-              url={'abc'}
-              title={'twitter'}
-              className="Demo__some-network__share-button">
-              <TwitterIcon
-                size={45}
-                round />
-            </TwitterShareButton>
+              </TwitterShareButton>
+            </div>
           </div>
-        </div>
-      </header>
-      <footer className='foo'>
-        <p style={{color:'gray',zIndex:'1',fontSize:'16px'}}>Developed By <a rel="noreferrer" href="https://www.quadbtech.com" target="_blank" style={{color:"cornflowerblue !important"}}>QuadBTech</a></p>
-      </footer>
-    </div>
-  );
+        </header>
+        {this.state.isFooterLoaded && 
+          <footer className='foo'>
+            <p style={{color:'gray',zIndex:'1',fontSize:'16px'}}>Developed By <a rel="noreferrer" href="https://www.quadbtech.com" target="_blank" style={{color:"cornflowerblue !important"}}>QuadBTech</a></p>
+          </footer>
+        }
+        
+      </div>
+    );
+  }
+  
 }
 
 export default App;
