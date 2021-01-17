@@ -4,7 +4,8 @@ import './App.css';
 import $ from "jquery";
 // import { Chart } from "react-google-charts";
 import { PieChart } from 'react-minimal-pie-chart';
-
+import {TelegramShareButton,TwitterShareButton} from "react-share";
+import {TelegramIcon,TwitterIcon} from "react-share";
 // MetaMask data
 // const getTxs = async (address) => {
 //   address = window.ethereum.selectedAddress;
@@ -256,8 +257,8 @@ function App() {
             <div className="col-4 section">
               <PieChart
                 data={[
-                  { title: 'One', value: parseInt(window.totalPricePerTransaction), color: '#346099' },
-                  { title: 'Two', value: parseInt(currentethusd) - parseInt(window.totalPricePerTransaction), color: '#C13C37' },
+                  { title: 'One', value:945, color: '#346099' },
+                  { title: 'Two', value:1055, color: '#C13C37' },
                 ]}
                 label={({ dataEntry }) => 'US$ '+dataEntry.value}
                 labelStyle={{
@@ -272,6 +273,24 @@ function App() {
             <div className="col-4 section">
               <h4>Amount you should have paid if you paid in stablecoins</h4>
             </div>
+          </div>
+          <div>
+            <TelegramShareButton
+                url={'abc'}
+                title={'telegram'}
+                className="Demo__some-network__share-button pr-2">
+                <TelegramIcon
+                  size={50}
+                  round />
+              </TelegramShareButton>
+            <TwitterShareButton
+              url={'abc'}
+              title={'twitter'}
+              className="Demo__some-network__share-button">
+              <TwitterIcon
+                size={50}
+                round />
+            </TwitterShareButton>
           </div>
         </div>
       </header>
