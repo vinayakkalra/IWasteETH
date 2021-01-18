@@ -125,7 +125,7 @@ class App extends React.Component {
     // console.log(address);
     // 
     var ethusd = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd').then(response => {return response.json()}).catch(err => {
-      console.log('(â•¯Â°â–¡Â°)â•¯ï¸µ â”»â”â”»', err);
+      console.log('coingeco error', err);
     })
     ethusd = ethusd.ethereum.usd;
     // console.log('ETHUSD: $' + ethusd);
