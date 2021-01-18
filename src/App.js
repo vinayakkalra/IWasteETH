@@ -117,6 +117,14 @@ class App extends React.Component {
     return prod;
   }
 
+  TimeStampAreOnSameDay(d1, d2){
+    console.log(d1, d2)
+    return (d1.getFullYear() === d2.getFullYear() && 
+    d1.getMonth() === d2.getMonth() && 
+    d1.getDate() === d2.getDate());
+  }
+   
+
   async data(address){
     var self = this;
     var totalPricePerTransaction 
@@ -191,15 +199,21 @@ class App extends React.Component {
       var gasFee = this.multiply(gasPrice, gasUsed);
       var timestamp = txsOut.map(value => parseInt(value.timeStamp));
       // console.log("gas fees", gasFee)
-      // console.log("timestamp", timestamp)
-      var fromTimestamp = timestamp[0]
-      var toTimestamp = timestamp[timestamp.length-1]
+      console.log("timestamp", timestamp)
+      var fromTimestamp = (new Date(timestamp[0]*1000))
+      fromTimestamp.setHours(0)
+      fromTimestamp.setMinutes(0)
+      fromTimestamp.setSeconds(0)
+      var toTimestamp = new Date(timestamp[timestamp.length-1]*1000)
+      toTimestamp.setHours(24)
+      toTimestamp.setMinutes(0)
+      toTimestamp.setSeconds(0)
 
-      // console.log("From timestamp", fromTimestamp)
-      // console.log("To timestamp", toTimestamp)
+      console.log("From timestamp", fromTimestamp.getTime())
+      console.log("To timestamp", toTimestamp.getTime())
       // https://www.bitmex.com/api/udf/history?symbol=ETHUSD&resolution=1h&from=1610475138&to=1610475138
       
-      var time = `https://api.coincap.io/v2/assets/ethereum/history?interval=d1&start=${fromTimestamp * 1000}&end=${toTimestamp * 1000}`
+      var time = `https://api.coincap.io/v2/assets/ethereum/history?interval=d1&start=${fromTimestamp.getTime()}&end=${toTimestamp.getTime()}`
       // For development purpose only
       var response1 = await fetch(time)
       // For production env
@@ -212,39 +226,21 @@ class App extends React.Component {
         console.log('coincap error ', response1.status);
       }
       var ethusdprice = json['data']
-      // console.log('eth usd price', ethusdprice)
+      console.log('eth usd price', ethusdprice)
       var pricePerTransaction = []
-      if (ethusdprice.length > 1){
-        for(var x=0; x<timestamp.length; x++){
-          for(var y=1; y<ethusdprice.length-1; y++){
-            
-            if((new Date(timestamp[x])).getDate() === (new Date(ethusdprice[y].time)).getDate()){
-              pricePerTransaction[x] = parseFloat(ethusdprice[y].priceUsd) * parseFloat(gasFee[x]/1e18)
-              // console.log('1', parseFloat(ethusdprice[y].priceUsd) * parseFloat(gasFee[x]/1e18))
-              break
-            } else if((new Date(timestamp[x])).getDate() === (new Date(ethusdprice[y+1].time)).getDate()){
-              // console.log(Date(timestamp[x]).getDate(), Date(ethusdprice[y+1].time).getDate())
-  
-              pricePerTransaction[x] = parseFloat(ethusdprice[y+1].priceUsd) * parseFloat(gasFee[x]/1e18)
-              // console.log('2', parseFloat(ethusdprice[y+1].priceUsd) * parseFloat(gasFee[x]/1e18))
-              break
-            } else if((new Date(timestamp[x])).getDate() === (new Date(ethusdprice[y-1].time)).getDate()){
-              // console.log(Date(timestamp[x]).getDate(), Date(ethusdprice[y-1].time).getDate())
-  
-              pricePerTransaction[x] = parseFloat(ethusdprice[y-1].priceUsd) * parseFloat(gasFee[x]/1e18)
-  
-              // console.log('3', parseFloat(ethusdprice[y-1].priceUsd) * parseFloat(gasFee[x]/1e18))
-              break
-            }
-            
-          }
-        }
-      }else if(ethusdprice.length === 1){
-        for(var z=0; z<timestamp.length; z++){
-          pricePerTransaction[z] = parseFloat(ethusdprice[0].priceUsd) * parseFloat(gasFee[z]/1e18)
+      for(var x=0; x<timestamp.length; x++){
+        for(var y=0; y<ethusdprice.length; y++){
+          
+          if(this.TimeStampAreOnSameDay(new Date(timestamp[x]*1000), (new Date(ethusdprice[y].time)))){
+            pricePerTransaction[x] = parseFloat(ethusdprice[y].priceUsd) * parseFloat(gasFee[x]/1e18)
+            console.log('1', parseFloat(ethusdprice[y].priceUsd) * parseFloat(gasFee[x]/1e18))
+
+            break
+          } 
         }
       }
-      // console.log('price per transaction', pricePerTransaction)
+      
+      console.log('price per transaction', pricePerTransaction)
       totalPricePerTransaction = pricePerTransaction.reduce((partial_sum, a) => partial_sum + a,0); 
       var gasFeeTotal = gasFee.reduce((partial_sum, a) => partial_sum + a,0); 
       var gasPriceTotal = gasPrice.reduce((partial_sum, a) => partial_sum + a,0);
