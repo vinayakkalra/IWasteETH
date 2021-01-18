@@ -1,16 +1,9 @@
 import React from 'react';
-// import logo from './logo.svg';
 import './App.css';
 import $ from "jquery";
-// import { Chart } from "react-google-charts";
-// import { PieChart } from 'react-minimal-pie-chart';
 import {TelegramShareButton,TwitterShareButton} from "react-share";
 import {TelegramIcon,TwitterIcon} from "react-share";
 import PieChartComponent from "./PieChart"
-// MetaMask data
-// const getTxs = async (address) => {
-//   address = window.ethereum.selectedAddress;
-// };
 
 class App extends React.Component {
 
@@ -65,14 +58,6 @@ class App extends React.Component {
       }else{
         $('.foo').addClass('footer');
       }
-      if(window.innerWidth >= 960){
-        $('.section').removeClass('col-12');
-        $('.section').addClass('col-4');
-      }else{
-        $('.section').removeClass('col-4');
-        $('.mbs').removeClass('d-flex');
-        $('.section').addClass('col-12');
-      }
       this.setState({isFooterLoaded: true})
     });
   }
@@ -101,13 +86,13 @@ class App extends React.Component {
     var totalPricePerTransaction 
 
     // this.comma
-    console.log(address);
+    // console.log(address);
     // 
     var ethusd = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd').then(response => {return response.json()}).catch(err => {
       console.log('(â•¯Â°â–¡Â°)â•¯ï¸µ â”»â”â”»', err);
     })
     ethusd = ethusd.ethereum.usd;
-    console.log('ETHUSD: $' + ethusd);
+    // console.log('ETHUSD: $' + ethusd);
     
     // key
     let key = "3FGUI5KS2E7W7CKP3MMRQJWX8DZD4E44GT"
@@ -147,7 +132,7 @@ class App extends React.Component {
   
     // remove duplicates
     //localStorage.setItem('txsOut', JSON.stringify(txsOut));
-    console.log('All outgoing txs:', txsOut)
+    // console.log('All outgoing txs:', txsOut)
   
     var nOut = txsOut.length;
     
@@ -158,7 +143,7 @@ class App extends React.Component {
 
     var nOutFail = txsOutFail.length;
     $('#nOutFail').text(this.comma(nOutFail));
-    console.log('Failed outgoing txs:', txsOutFail);
+    // console.log('Failed outgoing txs:', txsOutFail);
   
     if (nOut > 0) {
       var gasUsed = txsOut.map(value => parseInt(value.gasUsed));
@@ -169,13 +154,13 @@ class App extends React.Component {
 
       var gasFee = this.multiply(gasPrice, gasUsed);
       var timestamp = txsOut.map(value => parseInt(value.timeStamp));
-      console.log("gas fees", gasFee)
-      console.log("timestamp", timestamp)
+      // console.log("gas fees", gasFee)
+      // console.log("timestamp", timestamp)
       var fromTimestamp = timestamp[0]
       var toTimestamp = timestamp[timestamp.length-1]
 
-      console.log("From timestamp", fromTimestamp)
-      console.log("To timestamp", toTimestamp)
+      // console.log("From timestamp", fromTimestamp)
+      // console.log("To timestamp", toTimestamp)
       // https://www.bitmex.com/api/udf/history?symbol=ETHUSD&resolution=1h&from=1610475138&to=1610475138
       
       var time = `https://api.coincap.io/v2/assets/ethereum/history?interval=d1&start=${fromTimestamp * 1000}&end=${toTimestamp * 1000}`
@@ -183,15 +168,15 @@ class App extends React.Component {
       var response1 = await fetch(time)
       // For production env
       // response = await fetch(time)
-      console.log('response', response1)
+      // console.log('response', response1)
       if (response1.ok) { // if HTTP-status is 200-299
         json = await response1.json();
-        console.log('coincap result ', json);
+        // console.log('coincap result ', json);
       }else {
         console.log('coincap error ', response1.status);
       }
       var ethusdprice = json['data']
-      console.log('eth usd price', ethusdprice)
+      // console.log('eth usd price', ethusdprice)
       var pricePerTransaction = []
       for(var x=0; x<timestamp.length; x++){
         for(var y=1; y<ethusdprice.length-1; y++){
@@ -217,7 +202,7 @@ class App extends React.Component {
           
         }
       }
-      console.log('price per transaction', pricePerTransaction)
+      // console.log('price per transaction', pricePerTransaction)
       totalPricePerTransaction = pricePerTransaction.reduce((partial_sum, a) => partial_sum + a,0); 
       var gasFeeTotal = gasFee.reduce((partial_sum, a) => partial_sum + a,0); 
       var gasPriceTotal = gasPrice.reduce((partial_sum, a) => partial_sum + a,0);
@@ -252,14 +237,20 @@ class App extends React.Component {
         $('#gasFeeTotalFail').html('nothing');
       }
       if (ethusd !== null) {
-        // window.currentethusd = ethusd*gasFeeTotal/1e18
         $('#ethusd').text('$' + this.comma(this.formatter((ethusd*gasFeeTotal/1e18).toFixed(2))));
         $('#totalStableFees').text('$' + this.comma(this.formatter((totalPricePerTransaction).toFixed(2))));
-        // window.totalPricePerTransaction = totalPricePerTransaction
         $('#oofCost').append(' ($' + this.comma(this.formatter((ethusd*gasFeeFail[i]/1e18).toFixed(2))) + ')');
 
         self.setState({totalPricePerTransaction: totalPricePerTransaction, currentethusd: ethusd*gasFeeTotal/1e18, isStateLoaded: true})
       } 
+      if(window.innerWidth >= 960){
+        $('.section').removeClass('col-12');
+        $('.section').addClass('col-4');
+      }else{
+        $('.section').removeClass('col-4');
+        $('.mbs').removeClass('d-flex');
+        $('.section').addClass('col-12');
+      }
     }else{
       $('#gasUsedTotal').text(0);
       $('#gasFeeTotal').text('Ξ' + 0);
@@ -267,7 +258,6 @@ class App extends React.Component {
   }
 
   render(){
-    console.log("window", window.totalPricePerTransaction)
     return (
       <div className="App">
         <header className="App-header pt-4 pb-4" style={this.state.isHeaderLoaded ? {height: '90vh'} : {}}>
@@ -283,16 +273,15 @@ class App extends React.Component {
             <p><span id="nOutFail">🤔</span> of them failed, costing you <span id="gasFeeTotalFail">🤔</span>.</p>
             {this.state.isStateLoaded &&  
               <div className="mbs d-flex justify-content-center align-items-center pt-4 overflow-hidden">
-                <div className="col-4">
+                <div className="col-4 section">
                   <h4>Amount of ETH investment lost in gas payments</h4>
                 </div>
-                <div className="col-4">
-                  
+                <div className="col-4 section">                  
                   <PieChartComponent redValue={this.state.totalPricePerTransaction} blueValue={this.state.currentethusd - this.state.totalPricePerTransaction}/>
                 
                   
                 </div>
-                <div className="col-4">
+                <div className="col-4 section">
                   <h4>Amount you should have paid if you paid in stablecoins</h4>
                 </div>
               </div>
