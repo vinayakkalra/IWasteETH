@@ -314,10 +314,15 @@ class App extends React.Component {
           </div>
           {/* Screen 1 */}
           <div className="screen1">
-            <p>You've spent <span id="gasFeeTotal">🤔</span> on gas. Right now, that's <span id="ethusd">🤔</span>.</p>
+            {/* <p>You've spent <span id="gasFeeTotal">🤔</span> on gas. Right now, that's <span id="ethusd">🤔</span>.</p>
             <p>If you paid in stablecoins, you would have paid: <span id="totalStableFees">🤔</span> on gas.</p>
             <p>You used <span id="gasUsedTotal">🤔</span> gas to send <span id="nOut">🤔</span> transactions, with an average price of <span id="gasPricePerTx">🤔</span> gwei.</p>
-            <p><span id="nOutFail">🤔</span> of them failed, costing you <span id="gasFeeTotalFail">🤔</span>.</p>
+            <p><span id="nOutFail">🤔</span> of them failed, costing you <span id="gasFeeTotalFail">🤔</span>.</p> */}
+            <p>Total gas you have spent: <span id="gasFeeTotal">🤔</span>.</p>
+            <p>If you paid in stablecoins, you would have paid: <span id="totalStableFees">🤔</span>.</p>
+            <p>But you paid in ETH, so your spendings are currently worth: <span id="ethusd">🤔</span>.</p>
+            {/* <p>You used <span id="gasUsedTotal">🤔</span> gas to send <span id="nOut">🤔</span> transactions, with an average price of <span id="gasPricePerTx">🤔</span> gwei.</p>
+            <p><span id="nOutFail">🤔</span> of them failed, costing you <span id="gasFeeTotalFail">🤔</span>.</p> */}
             {this.state.isStateLoaded &&  
               <div className="mbs d-flex justify-content-center align-items-center pt-4 overflow-hidden">
                 <div className="col-4 section">
