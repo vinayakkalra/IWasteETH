@@ -20,38 +20,74 @@ class App extends React.Component {
   }
 
   componentDidMount(){
-    
+    // var address = "";
+    // var currentethusd
+    // get data by address
+    let search = window.location.search;
+    let params = new URLSearchParams(search);
+    var address = params.get('address', null);
+    // console.log(address);
     window.addEventListener('load', async () => {          
-      var address = "";
-      // var currentethusd
-    
-      if (typeof window.ethereum !== "undefined" && window.ethereum.isMetaMask) {
-        // Ethereum user detected. You can now use the provider.
-        
-        const provider = window["ethereum"];
-        await provider.enable();
-        // console.log('address', window.ethereum.selectedAddress);
-        address = window.ethereum.selectedAddress;
-        // console.log(address);
-        $(".screen1").css("display","block");
-        $(".screen2").css("display","none");
-        this.setState({isHeaderLoaded: false})
-        this.data(address)
-      } else {
-        $(".screen2").css("display","block");
-      }
-      // get data by address
-      let search = window.location.search;
-      let params = new URLSearchParams(search);
-      address = params.get('address', null);
-      // console.log(address);
+      
+
       if (address==null) {
-    
+        if (typeof window.ethereum !== "undefined" && window.ethereum.isMetaMask) {
+          // Ethereum user detected. You can now use the provider.
+          
+          const provider = window["ethereum"];
+          await provider.enable();
+          // console.log('address', window.ethereum.selectedAddress);
+          address = window.ethereum.selectedAddress;
+          window.location = '/?address=' + address
+          // console.log(address);
+          // $(".screen1").css("display","block");
+          // $(".screen2").css("display","none");
+          // this.setState({isHeaderLoaded: false})
+          // this.data(address)
+          // window.ethereum.on('accountsChanged', function (accounts) {
+          //   // Time to reload your interface with accounts[0]!
+          //   console.log('account changed', accounts[0])
+          //   // self.data(accounts[0])
+          //   // $(".screen1").css("display","block");
+          //   // $(".screen2").css("display","none");
+          //   // self.setState({isHeaderLoaded: false})
+          //   if (address != accounts[0]){
+          //     window.location = '/?address=' + accounts[0]
+          //   }
+            
+          // })
+        } else {
+          $(".screen2").css("display","block");
+        }
+        
       }else{
-        this.data(address)
-        $(".screen1").css("display","block");
-        $(".screen2").css("display","none");
-        this.setState({isHeaderLoaded: false})
+        if (typeof window.ethereum !== "undefined" && window.ethereum.isMetaMask) {
+          var address1 = address
+          window.ethereum.on('accountsChanged', function (accounts) {
+            // Time to reload your interface with accounts[0]!
+            console.log('account changed', accounts[0])
+            // self.data(accounts[0])
+            // $(".screen1").css("display","block");
+            // $(".screen2").css("display","none");
+            // self.setState({isHeaderLoaded: false})
+            if (address1 === null){
+              window.location = '/?address=' + accounts[0];
+              
+            }
+            address1 = null
+            
+          })
+          this.data(address)
+          $(".screen1").css("display","block");
+          $(".screen2").css("display","none");
+          this.setState({isHeaderLoaded: false})
+        } else {
+          this.data(address)
+          $(".screen1").css("display","block");
+          $(".screen2").css("display","none");
+          this.setState({isHeaderLoaded: false})
+        }
+        
       }
       if($('.screen2').css('display') === 'none'){
         $('.foo').removeClass('footer');
@@ -178,28 +214,34 @@ class App extends React.Component {
       var ethusdprice = json['data']
       // console.log('eth usd price', ethusdprice)
       var pricePerTransaction = []
-      for(var x=0; x<timestamp.length; x++){
-        for(var y=1; y<ethusdprice.length-1; y++){
-          
-          if((new Date(timestamp[x])).getDate() === (new Date(ethusdprice[y].time)).getDate()){
-            pricePerTransaction[x] = parseFloat(ethusdprice[y].priceUsd) * parseFloat(gasFee[x]/1e18)
-            // console.log('1', parseFloat(ethusdprice[y].priceUsd) * parseFloat(gasFee[x]/1e18))
-            break
-          } else if((new Date(timestamp[x])).getDate() === (new Date(ethusdprice[y+1].time)).getDate()){
-            // console.log(Date(timestamp[x]).getDate(), Date(ethusdprice[y+1].time).getDate())
-
-            pricePerTransaction[x] = parseFloat(ethusdprice[y+1].priceUsd) * parseFloat(gasFee[x]/1e18)
-            // console.log('2', parseFloat(ethusdprice[y+1].priceUsd) * parseFloat(gasFee[x]/1e18))
-            break
-          } else if((new Date(timestamp[x])).getDate() === (new Date(ethusdprice[y-1].time)).getDate()){
-            // console.log(Date(timestamp[x]).getDate(), Date(ethusdprice[y-1].time).getDate())
-
-            pricePerTransaction[x] = parseFloat(ethusdprice[y-1].priceUsd) * parseFloat(gasFee[x]/1e18)
-
-            // console.log('3', parseFloat(ethusdprice[y-1].priceUsd) * parseFloat(gasFee[x]/1e18))
-            break
+      if (ethusdprice.length > 1){
+        for(var x=0; x<timestamp.length; x++){
+          for(var y=1; y<ethusdprice.length-1; y++){
+            
+            if((new Date(timestamp[x])).getDate() === (new Date(ethusdprice[y].time)).getDate()){
+              pricePerTransaction[x] = parseFloat(ethusdprice[y].priceUsd) * parseFloat(gasFee[x]/1e18)
+              // console.log('1', parseFloat(ethusdprice[y].priceUsd) * parseFloat(gasFee[x]/1e18))
+              break
+            } else if((new Date(timestamp[x])).getDate() === (new Date(ethusdprice[y+1].time)).getDate()){
+              // console.log(Date(timestamp[x]).getDate(), Date(ethusdprice[y+1].time).getDate())
+  
+              pricePerTransaction[x] = parseFloat(ethusdprice[y+1].priceUsd) * parseFloat(gasFee[x]/1e18)
+              // console.log('2', parseFloat(ethusdprice[y+1].priceUsd) * parseFloat(gasFee[x]/1e18))
+              break
+            } else if((new Date(timestamp[x])).getDate() === (new Date(ethusdprice[y-1].time)).getDate()){
+              // console.log(Date(timestamp[x]).getDate(), Date(ethusdprice[y-1].time).getDate())
+  
+              pricePerTransaction[x] = parseFloat(ethusdprice[y-1].priceUsd) * parseFloat(gasFee[x]/1e18)
+  
+              // console.log('3', parseFloat(ethusdprice[y-1].priceUsd) * parseFloat(gasFee[x]/1e18))
+              break
+            }
+            
           }
-          
+        }
+      }else if(ethusdprice.length === 1){
+        for(var z=0; z<timestamp.length; z++){
+          pricePerTransaction[z] = parseFloat(ethusdprice[0].priceUsd) * parseFloat(gasFee[z]/1e18)
         }
       }
       // console.log('price per transaction', pricePerTransaction)
@@ -254,6 +296,11 @@ class App extends React.Component {
     }else{
       $('#gasUsedTotal').text(0);
       $('#gasFeeTotal').text('Ξ' + 0);
+      $('#ethusd').text('$' + 0);
+      $('#totalStableFees').text('$' + 0);
+      $('#oofCost').append(' ($' + 0 + ')');
+      $('#gasPricePerTx').text('0');
+      $('#gasFeeTotalFail').text('nothing');
     }
   }
 
