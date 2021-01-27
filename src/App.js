@@ -322,7 +322,7 @@ class App extends React.Component {
             {this.state.isStateLoaded &&  
               <div className="mbs d-flex justify-content-center align-items-center pt-4 overflow-hidden">
                 <div className="col-4 section">
-                  <h4>Amount of ETH investment lost in gas payments</h4>
+                  <h2>Amount of ETH investment lost in gas payments</h2>
                 </div>
                 <div className="col-4 section">                  
                   <PieChartComponent redValue={this.state.totalPricePerTransaction} blueValue={this.state.currentethusd - this.state.totalPricePerTransaction}/>
@@ -330,7 +330,7 @@ class App extends React.Component {
                   
                 </div>
                 <div className="col-4 section">
-                  <h4>Amount you should have paid if you paid in stablecoins</h4>
+                  <h2>Amount you should have paid if you paid in stablecoins</h2>
                 </div>
               </div>
             }
@@ -342,7 +342,7 @@ class App extends React.Component {
                   title={'I have spent ' + this.state.gasFeeTotal +' ETH in gas currently worth $'+ this.comma(this.formatter(this.state.currentethusd.toFixed(0))) +'. If I paid gas in stablecoin, I would have saved $'+ this.comma(this.formatter((this.state.currentethusd - this.state.totalPricePerTransaction).toFixed(0))) +'.'}
                   className="pr-2">
                   <TelegramIcon
-                    size={45}
+                    size={40}
                     round />
               </TelegramShareButton>
               <TwitterShareButton
