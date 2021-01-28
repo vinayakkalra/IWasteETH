@@ -66,11 +66,12 @@ class App extends React.Component {
           window.ethereum.on('accountsChanged', function (accounts) {
             // Time to reload your interface with accounts[0]!
             console.log('account changed', accounts[0])
+            console.log('address1', address)
             // self.data(accounts[0])
             // $(".screen1").css("display","block");
             // $(".screen2").css("display","none");
             // self.setState({isHeaderLoaded: false})
-            if (address1 === null){
+            if (accounts[0] !== address){
               window.location = '/?address=' + accounts[0];
               
             }
