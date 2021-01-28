@@ -66,6 +66,12 @@ h4{
   vertical-align:middle;
   display:table-cell;
 }
+.dot{
+  color:#C13C37 !important;
+}
+.dot1 {
+  color: #346099 !important;
+}
 .share-buttons{
   font-family: 'Roboto', sans-serif;
   text-align:center;

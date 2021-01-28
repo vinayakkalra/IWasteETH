@@ -10,7 +10,6 @@ export default class PieChartComponent extends React.Component {
             blueValue : this.props.blueValue
         };
     }
-
     comma(x) {
         var parts = x.toString().split(".");
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");

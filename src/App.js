@@ -322,19 +322,16 @@ class App extends React.Component {
             {this.state.isStateLoaded &&  
               <div className="mbs d-flex justify-content-center align-items-center pt-4 overflow-hidden">
                 <div className="col-4 section">
-                  <h2>Amount of ETH investment lost in gas payments</h2>
+                  <h2>Amount of <span className="dot">ETH</span> investment lost in gas payments</h2>
                 </div>
                 <div className="col-4 section">                  
                   <PieChartComponent redValue={this.state.totalPricePerTransaction} blueValue={this.state.currentethusd - this.state.totalPricePerTransaction}/>
-                
-                  
                 </div>
                 <div className="col-4 section">
-                  <h2>Amount you should have paid if you paid in stablecoins</h2>
+                  <h2>Amount you should have paid if you paid in <span className="dot1">Stablecoins</span></h2>
                 </div>
               </div>
-            }
-            
+            }            
             <div className="share-buttons pt-5">
               <h2>Share Your Findings Now</h2>
               <TelegramShareButton
