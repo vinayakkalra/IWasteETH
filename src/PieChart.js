@@ -10,8 +10,8 @@ export default class PieChartComponent extends React.Component {
             blueValue : this.props.blueValue,
             hovered : undefined,
             data : [
-                { title: 'One', value:this.props.redValue, color: '#346099' },
-                { title: 'Two', value:this.props.blueValue, color: '#C13C37' },
+                { title: 'One', value:this.props.blueValue, color: '#346099' },
+                { title: 'Two', value:this.props.redValue, color: '#C13C37' },
             ],
             selected: 0
         };
