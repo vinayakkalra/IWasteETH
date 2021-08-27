@@ -214,7 +214,7 @@ class App extends React.Component {
       console.log("To timestamp", toTimestamp.getTime())
       // https://www.bitmex.com/api/udf/history?symbol=ETHUSD&resolution=1h&from=1610475138&to=1610475138
       
-      var time = `https://api.coincap.io/v2/assets/ethereum/history?interval=d1&start=${fromTimestamp.getTime()}&end=${toTimestamp.getTime()}`
+      var time = `https://api.coincap.io/v2/assets/ardor/history?interval=d1&start=${fromTimestamp.getTime()}&end=${toTimestamp.getTime()}`
       // For development purpose only
       var response1 = await fetch(time)
       // For production env
