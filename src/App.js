@@ -137,7 +137,7 @@ class App extends React.Component {
       console.log('coingeco error', err);
     })
     ethusd = ethusd.ethereum.usd;
-    // console.log('ETHUSD: $' + ethusd);
+    // console.log('ETHUSD: $' + ethusd);;
     
     // key
     let key = "3FGUI5KS2E7W7CKP3MMRQJWX8DZD4E44GT"
